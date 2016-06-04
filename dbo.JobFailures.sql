@@ -1,0 +1,59 @@
+
+-- JobFailures: All jobs with steps
+IF EXISTS (SELECT * FROM sys.objects WHERE OBJECT_ID = OBJECT_ID('dbo.JobFailures') AND [Type] = 'U')
+  DROP TABLE dbo.JobFailures
+GO
+
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
+SET ANSI_PADDING ON;
+GO
+
+CREATE TABLE dbo.JobFailures
+(
+  InstanceID      INT NOT NULL,
+  JobName         SYSNAME NULL,
+  JobID           UNIQUEIDENTIFIER NULL,
+  StepName        SYSNAME NULL,
+  StepID          INT NULL,
+  StepMessage     NVARCHAR(4000) NULL,
+  LastRunOutcome  INT NULL,
+  LastRunDateTime DATETIME NULL,
+  LastRunDuration NVARCHAR(32) NULL,
+  UpdateFlag      BIT NOT NULL DEFAULT ((0)),
+  SubSystem       VARCHAR(80) NULL
+) 
+ON [PRIMARY]
+GO
+
+SET ANSI_PADDING OFF
+GO
+
+CREATE CLUSTERED INDEX [IDXC_JobFailures_InstanceID] ON dbo.JobFailures
+(
+  InstanceID ASC
+)
+WITH (PAD_INDEX = ON, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) 
+ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IDXN_JobFailures_JobID_INC_InstanceID_UpdateFlag] ON dbo.JobFailures
+(
+  JobID ASC
+)
+INCLUDE (InstanceID,UpdateFlag) 
+WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IDXN_JobFailures_LastRunOutcome_UpdateFlag_LastRunDateTime] ON dbo.JobFailures
+(
+  LastRunOutcome ASC,
+  UpdateFlag ASC,
+  LastRunDateTime ASC
+)
+WITH (PAD_INDEX = ON, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) 
+ON [PRIMARY]
+GO
